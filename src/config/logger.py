@@ -2,13 +2,13 @@
 import os
 import time
 import logging
-from src.config.settings import LOGS_DIR
+from src.config.settings import settings
 
 class LoggerClass:
     """Job: abstract all log generation/configuration"""
 
-    os.makedirs(LOGS_DIR, exist_ok=True)
-    logging.basicConfig(filename=os.path.join(LOGS_DIR, 
+    os.makedirs(settings.LOGS_DIR, exist_ok=True)
+    logging.basicConfig(filename=os.path.join(settings.LOGS_DIR, 
                                               time.strftime("%Y.%m.%d_%H:%M:%S_") + 'default.log'),
                                               format='%(asctime)s %(levelname)s: %(message)s')
     
@@ -17,7 +17,7 @@ class LoggerClass:
         """Configures the logger with the file name and debug mode"""
 
         cls.script_name = time.strftime("%Y.%m.%d_%H:%M:%S_") + file_name
-        logging.basicConfig(filename=os.path.join(LOGS_DIR, f'{cls.script_name}.log'),
+        logging.basicConfig(filename=os.path.join(settings.LOGS_DIR, f'{cls.script_name}.log'),
                             format='%(asctime)s %(levelname)s: %(message)s')
         if debug:
             logging.getLogger().setLevel(logging.DEBUG)
@@ -33,7 +33,7 @@ class LoggerClass:
     @classmethod
     def get_log_path(cls):
         """Returns the path of the current log file"""
-        return os.path.join(LOGS_DIR, f'{cls.script_name}.log')
+        return os.path.join(settings.LOGS_DIR, f'{cls.script_name}.log')
 
     @staticmethod
     def info(message: str = "", to_print=False) -> None:
