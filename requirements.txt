@@ -1,6 +1,6 @@
 ultralytics==8.3.24
 opencv-python==4.10.0.84
-torch>=<2.4
+torch>=2.3,<2.4
 torchvision>=0.18,<0.19
 pydantic==2.9.2
 pydantic-settings==2.4.0
