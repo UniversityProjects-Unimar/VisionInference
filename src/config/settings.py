@@ -18,16 +18,26 @@ class AppSettings(BaseSettings):
     PROJECT_NAME: str = "VisionInference"
     LOGS_DIR: Path = Path("logs")
     MODELS_DIR: Path = Path("models")
+    INCIDENTS_DIR: Path = Path("incidents")
     DEFAULT_MODEL_PATH: Path = Field(default="models/yolov11m.pt", alias="MODEL_PATH")
     DETECTION_CONFIDENCE_THRESHOLD: float = Field(default=0.25, ge=0.0, le=1.0)
     DETECTION_IOU: float = Field(default=0.45, ge=0.0, le=1.0)
     DEVICE_PREFERENCE: str = Field(default="auto", pattern="^(auto|cpu|cuda)$")
     SOURCES: List[str] = Field(default_factory=list)
-    WARMUP_RUNS: int = Field(default=2, ge=0, le=10) # for handling initial setup tasks
+    WARMUP_RUNS: int = Field(default=2, ge=0, le=10)
+    
+    # Alert system settings
+    ENABLE_ALERTS: bool = Field(default=True)
+    VIOLATION_DURATION_THRESHOLD: float = Field(default=5.0, ge=1.0, le=60.0)
+    VIOLATION_CONFIDENCE_THRESHOLD: float = Field(default=0.75, ge=0.0, le=1.0)
+    VIDEO_BUFFER_SECONDS: float = Field(default=10.0, ge=5.0, le=60.0)
+    ALERT_COOLDOWN_SECONDS: float = Field(default=30.0, ge=0.0, le=300.0)
+    BACKEND_API_URL: str = Field(default="http://localhost:8080/api/inference")
 
     def ensure_directories(self):
         self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
         self.MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        self.INCIDENTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache
