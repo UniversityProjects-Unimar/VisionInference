@@ -1,13 +1,11 @@
-from pyexpat import model
 import time
 from datetime import datetime, timezone
 from typing import List, Optional
-
 import numpy as np
 
 from src.config.settings import settings
 from src.config.logger import LoggerClass as logger
-from src.inference.model_loader import DeviceType, ModelInfo, ModelLoader
+from src.inference.model_loader import ModelInfo, ModelLoader
 from src.inference.schemas import Detection, InferenceResult
 
 class Detector:
@@ -22,11 +20,11 @@ class Detector:
         self._confidence = confidence or settings.DETECTION_CONFIDENCE_THRESHOLD
         self._iou = iou or settings.DETECTION_IOU
         self._model, self._info = self._loader.load_model(self._model_path)
-    
+
     @property
     def model_info(self) -> ModelInfo:
         return self._info
-    
+
     def predict(self, frame: np.ndarray, source: str) -> InferenceResult:
         start = time.perf_counter()
         results = self._model.predict(
@@ -49,7 +47,7 @@ class Detector:
     def warmup(self, runs: int = settings.WARMUP_RUNS) -> None:
         if runs <= 0:
             return
-        
+
         logger.info(f"Warming up the model with {runs} dummy runs...")
         dummy = np.zeros((self._info.input_size, self._info.input_size, 3), dtype=np.uint8)
         for _ in range(runs):
@@ -60,7 +58,6 @@ class Detector:
                 iou=self._iou,
                 verbose=False
             )
-    
 
     def _convert_results(self, results) -> List[Detection]:
         detections: List[Detection] = []
