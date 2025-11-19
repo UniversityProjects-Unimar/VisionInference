@@ -1,16 +1,12 @@
-# Core ML/CV frameworks
 ultralytics==8.3.229
 opencv-python==4.12.0.88
 torch==2.9.1
 torchvision==0.24.1
-
-# Data handling
 numpy==2.2.6
-
-# Configuration & validation
 pydantic==2.12.4
 pydantic-settings==2.12.0
 python-dotenv==1.2.1
+requests>=2.32.0
 
 # Optional: Visualization
 # matplotlib==3.10.7
