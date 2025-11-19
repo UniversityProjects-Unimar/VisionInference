@@ -78,12 +78,9 @@ VisionInference/
 ### Docker Deployment
 
    ```bash
-   # Build the container
-   docker-compose build
-  # 2. Run the service
-   docker-compose up -d
-  # 3. View logs
-   docker-compose logs -f vision-inference
+   docker compose build
+   docker compose up -d
+   docker compose logs -f vision-inference
    ```
 
 4. **Stop the service**
@@ -109,31 +106,7 @@ sudo usermod -aG video $USER
 
 Edit `.env` to customize behavior:
 
-## Usage Examples
-
-### Single USB Camera
-```properties
-SOURCES__0=0
-```
-
-### Multiple Cameras
-```properties
-SOURCES__0=0
-SOURCES__1=1
-SOURCES__2=rtsp://192.168.1.100:554/stream
-```
-
-### Video File
-```properties
-SOURCES__0=/path/to/safety_video.mp4
-```
-
 ## Development
-
-### Run Tests
-```bash
-pytest tests/
-```
 
 ### Code Formatting
 ```bash
