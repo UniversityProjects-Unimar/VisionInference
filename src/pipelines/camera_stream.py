@@ -17,7 +17,13 @@ class CameraConfig:
 class CameraStream:
     def __init__(self, config: CameraConfig) -> None:
         self._config = config
-        self._capture = cv2.VideoCapture(config.source)
+        source = config.source
+        try:
+            source = int(source)
+        except (ValueError, TypeError):
+            pass  # Keep as string (for file paths, RTSP URLs, etc.)
+
+        self._capture = cv2.VideoCapture(source)
         if not self._capture.isOpened():
             raise RuntimeError(f"Failed to open video source: {config.source}")
         self._configure_capture()
