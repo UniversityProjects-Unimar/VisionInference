@@ -77,18 +77,12 @@ VisionInference/
 
 ### Docker Deployment
 
-1. **Build the container**
    ```bash
+   # Build the container
    docker-compose build
-   ```
-
-2. **Run the service**
-   ```bash
+  # 2. Run the service
    docker-compose up -d
-   ```
-
-3. **View logs**
-   ```bash
+  # 3. View logs
    docker-compose logs -f vision-inference
    ```
 
