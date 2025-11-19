@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
       container_name: vision-inference
     volumes:
-      - ./src:app/src
+      - ./:/app
+      - /dev:/dev
     restart: always
     ports:
       - "8080:8080"
