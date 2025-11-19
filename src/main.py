@@ -1,4 +1,3 @@
-from src.config.settings import settings
 from src.config.logger import LoggerClass as logger
 from src.pipelines.inference_pipeline import InferencePipeline
 
