@@ -3,9 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: vision-inference
     volumes:
-      - ./:/app
+      - ./src:/app/src
+      - ./logs:/app/logs
+      - ./models:/app/models
+    devices:
       - /dev:/dev
-    restart: always
+    privileged: true  # Needed for camera access
+    restart: unless-stopped
     ports:
       - "8080:8080"
