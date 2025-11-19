@@ -9,8 +9,8 @@ from src.config.logger import LoggerClass as logger
 class CameraConfig:
     source: str
     name: Optional[str] = None
-    width: Optional[str] = None
-    height: Optional[str] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
     fps: Optional[float] = None
 
 
