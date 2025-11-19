@@ -12,14 +12,29 @@ class Detector:
     def __init__(
             self,
             model_path: Optional[str] = None,
-            confidence: Optional[str] = None,
-            iou: Optional[str] = None
+            confidence: Optional[float] = None,
+            iou: Optional[float] = None,
+            device: Optional[str] = None
     ) -> None:
         self._loader = ModelLoader()
         self._model_path = model_path or str(settings.DEFAULT_MODEL_PATH)
-        self._confidence = confidence or settings.DETECTION_CONFIDENCE_THRESHOLD
-        self._iou = iou or settings.DETECTION_IOU
-        self._model, self._info = self._loader.load_model(self._model_path)
+        self._confidence = confidence if confidence is not None else settings.DETECTION_CONFIDENCE_THRESHOLD
+        self._iou = iou if iou is not None else settings.DETECTION_IOU
+        
+        # Resolve device preference
+        self._device = self._resolve_device(device)
+        self._model, self._info = self._loader.load_model(self._model_path, device=self._device)
+    
+    def _resolve_device(self, device: Optional[str]) -> Optional[str]:
+        """Resolve device preference from parameter or settings"""
+        if device is not None:
+            return device
+        
+        # Use settings preference
+        pref = settings.DEVICE_PREFERENCE
+        if pref == "auto":
+            return None  # Let model loader auto-detect
+        return pref
 
     @property
     def model_info(self) -> ModelInfo:
@@ -32,6 +47,7 @@ class Detector:
             imgsz=self._info.input_size,
             conf=self._confidence,
             iou=self._iou,
+            device=self._device or self._info.device.value,
             verbose=False
         )
         latency_ms = (time.perf_counter() - start) * 1000.0
@@ -56,6 +72,7 @@ class Detector:
                 imgsz=self._info.input_size,
                 conf=self._confidence,
                 iou=self._iou,
+                device=self._device or self._info.device.value,
                 verbose=False
             )
 
