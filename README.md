@@ -77,16 +77,16 @@ VisionInference/
 
 ### Docker Deployment
 
-   ```bash
-   docker compose build
-   docker compose up -d
-   docker compose logs -f vision-inference
-   ```
+    ```bash
+    docker compose build
+    docker compose up -d
+    docker compose logs -f vision-inference
+    ```
 
 4. **Stop the service**
-   ```bash
-   docker-compose down
-   ```
+    ```bash
+    docker-compose down
+    ```
 
 ### USB Camera Setup (Docker)
 
