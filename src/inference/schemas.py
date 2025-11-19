@@ -1,11 +1,13 @@
 from dataclasses import dataclass
-from enum import StrEnum, auto
+from enum import Enum
 from typing import Dict, List, Tuple
 from datetime import datetime
 
-class DeviceType(StrEnum):
-    CPU = auto()
-    CUDA = auto()
+
+class DeviceType(str, Enum):
+    """Device type enumeration compatible with Python 3.9+"""
+    CPU = "cpu"
+    CUDA = "cuda"
 
 @dataclass
 class ModelInfo:
