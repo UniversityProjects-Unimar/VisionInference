@@ -30,7 +30,7 @@ class AppSettings(BaseSettings):
     ENABLE_ALERTS: bool = Field(default=True)
     VIOLATION_DURATION_THRESHOLD: float = Field(default=5.0, ge=1.0, le=60.0)
     VIOLATION_CONFIDENCE_THRESHOLD: float = Field(default=0.75, ge=0.0, le=1.0)
-    VIDEO_BUFFER_SECONDS: float = Field(default=10.0, ge=5.0, le=60.0)
+    VIDEO_BUFFER_SECONDS: float = Field(default=15.0, ge=5.0, le=60.0)  # Increased to 15s to ensure minimum 10s
     ALERT_COOLDOWN_SECONDS: float = Field(default=30.0, ge=0.0, le=300.0)
     BACKEND_API_URL: str = Field(default="http://localhost:8000/api/warnings")
 

@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-# Install system dependencies for OpenCV and camera access
+# Install system dependencies for OpenCV, camera access, and ffmpeg for video conversion
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libavformat-dev \
     libswscale-dev \
     v4l-utils \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
