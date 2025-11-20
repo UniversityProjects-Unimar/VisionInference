@@ -12,7 +12,6 @@ import cv2
 import numpy as np
 
 from src.config.logger import LoggerClass as logger
-from src.inference.detector import Detector
 from src.inference.schemas import Detection, InferenceResult
 from src.utils.alert_manager import AlertManager
 from src.utils.video_buffer import VideoBuffer

@@ -19,7 +19,6 @@ import numpy as np
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.config.settings import settings
 from src.inference.detector import Detector
 from src.inference.schemas import Detection
 
