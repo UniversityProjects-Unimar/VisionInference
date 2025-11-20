@@ -32,7 +32,7 @@ class AppSettings(BaseSettings):
     VIOLATION_CONFIDENCE_THRESHOLD: float = Field(default=0.75, ge=0.0, le=1.0)
     VIDEO_BUFFER_SECONDS: float = Field(default=10.0, ge=5.0, le=60.0)
     ALERT_COOLDOWN_SECONDS: float = Field(default=30.0, ge=0.0, le=300.0)
-    BACKEND_API_URL: str = Field(default="http://localhost:8080/api/inference")
+    BACKEND_API_URL: str = Field(default="http://localhost:8000/api/warnings")
 
     def ensure_directories(self):
         self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
