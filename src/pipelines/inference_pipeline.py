@@ -19,20 +19,29 @@ class InferencePipeline:
         self,
         sources: Optional[Iterable[str]] = None,
         warmup: bool = True,
-        enable_alerts: bool = True,
-        violation_threshold_seconds: float = 5.0,
-        violation_confidence: float = 0.75,
-        video_buffer_seconds: float = 10.0,
-        incidents_dir: str = "incidents"
+        enable_alerts: bool = None,
+        violation_threshold_seconds: float = None,
+        violation_confidence: float = None,
+        video_buffer_seconds: float = None,
+        incidents_dir: str = None
     ):
         self._sources = list(sources or settings.SOURCES)
         self._detector = Detector()
+        
+        # Use settings if parameters not provided
+        enable_alerts = enable_alerts if enable_alerts is not None else settings.ENABLE_ALERTS
+        violation_threshold_seconds = violation_threshold_seconds or settings.VIOLATION_DURATION_THRESHOLD
+        violation_confidence = violation_confidence or settings.VIOLATION_CONFIDENCE_THRESHOLD
+        video_buffer_seconds = video_buffer_seconds or settings.VIDEO_BUFFER_SECONDS
+        incidents_dir = incidents_dir or str(settings.INCIDENTS_DIR)
         
         # Alert and video recording setup
         self._enable_alerts = enable_alerts
         self._alert_manager = AlertManager(
             violation_duration_threshold=violation_threshold_seconds,
-            confidence_threshold=violation_confidence
+            confidence_threshold=violation_confidence,
+            backend_url=settings.BACKEND_API_URL,
+            cooldown_seconds=settings.ALERT_COOLDOWN_SECONDS
         ) if enable_alerts else None
         
         # Video buffers per source
@@ -90,7 +99,7 @@ class InferencePipeline:
                 self._handle_violation(violation, result.source)
         
         # Send regular inference results to backend (optional)
-        self._send_inference_result(result)
+        # self._send_inference_result(result)
     
     def _handle_violation(self, violation, source: str) -> None:
         """Handle detected safety violation"""
@@ -111,7 +120,9 @@ class InferencePipeline:
         
         # Send notification to backend
         if self._alert_manager:
-            self._alert_manager.send_notification(violation, video_path)
+            success = self._alert_manager.send_notification(violation, video_path)
+            if not success:
+                logger.error(f"Failed to send notification for violation {violation.violation_id}")
     
     def _send_inference_result(self, result: InferenceResult) -> None:
         """Send regular inference result to backend (optional)"""

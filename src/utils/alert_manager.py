@@ -72,7 +72,7 @@ class AlertManager:
         """
         self.violation_duration_threshold = violation_duration_threshold
         self.confidence_threshold = confidence_threshold
-        self.backend_url = backend_url or self._get_backend_url()
+        self.backend_url = backend_url or settings.BACKEND_API_URL
         self.cooldown_seconds = cooldown_seconds
         
         # Track active violations per source
@@ -87,12 +87,7 @@ class AlertManager:
         # All violations history
         self.violation_history: List[SafetyViolation] = []
         
-        logger.info(f"AlertManager initialized: threshold={violation_duration_threshold}s, confidence={confidence_threshold}")
-    
-    def _get_backend_url(self) -> str:
-        """Get backend URL from settings or use default"""
-        # TODO: Add BACKEND_URL to settings
-        return "http://localhost:8080/api/inference"
+        logger.info(f"AlertManager initialized: threshold={violation_duration_threshold}s, confidence={confidence_threshold}, backend={self.backend_url}")
     
     def process_result(self, result: InferenceResult) -> Optional[SafetyViolation]:
         """
@@ -191,14 +186,14 @@ class AlertManager:
         self,
         violation: SafetyViolation,
         video_path: Optional[Path] = None,
-        timeout: float = 5.0
+        timeout: float = 10.0
     ) -> bool:
         """
-        Send notification to backend API
+        Send notification to backend API as multipart/form-data
         
         Args:
             violation: Violation to report
-            video_path: Optional path to incident video
+            video_path: Path to incident video file
             timeout: Request timeout in seconds
             
         Returns:
@@ -208,21 +203,37 @@ class AlertManager:
             logger.debug(f"Violation {violation.violation_id} already notified")
             return True
         
-        # Update video path if provided
-        if video_path:
-            violation.video_path = str(video_path)
+        # Video file is required by backend
+        if not video_path or not Path(video_path).exists():
+            logger.error(f"Video file not found: {video_path}")
+            return False
         
-        payload = violation.to_dict()
+        # Update video path
+        violation.video_path = str(video_path)
+        
+        # Prepare multipart form data
+        data = {
+            'local': f"Camera {violation.source}",
+            'category': 'FALTA_DE_EPI'
+        }
         
         try:
             logger.info(f"Sending notification to {self.backend_url}")
-            response = requests.post(
-                self.backend_url,
-                json=payload,
-                timeout=timeout
-            )
             
-            if response.status_code in (200, 201):
+            # Open and send video file
+            with open(video_path, 'rb') as video_file:
+                files = {
+                    'file': (Path(video_path).name, video_file, 'video/mp4')
+                }
+                
+                response = requests.post(
+                    self.backend_url,
+                    data=data,
+                    files=files,
+                    timeout=timeout
+                )
+            
+            if response.status_code in (200, 201, 202):
                 logger.info(f"Notification sent successfully: {violation.violation_id}")
                 violation.notified = True
                 self.last_alert_times[violation.source] = time.time()
@@ -239,6 +250,9 @@ class AlertManager:
             return False
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to send notification: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error sending notification: {e}")
             return False
     
     def get_statistics(self) -> Dict:
