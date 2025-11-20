@@ -4,13 +4,23 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: vision-inference
+    env_file:
+      - .env
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
       - ./models:/app/models
+      - ./incidents:/app/incidents
     devices:
       - /dev:/dev
     privileged: true  # Needed for camera access
     restart: unless-stopped
     ports:
       - "8080:8080"
+    networks:
+      - fullcam-network
+
+networks:
+  fullcam-network:
+    external: true
+    name: fullcam-vision-back_fullcam-network
