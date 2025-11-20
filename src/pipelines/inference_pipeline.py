@@ -108,8 +108,8 @@ class InferencePipeline:
         # Save incident video
         video_path = None
         if source in self._video_buffers:
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            video_filename = f"violation_{source}_{timestamp}.mp4"
+            # Use violation_id which contains source and timestamp
+            video_filename = f"{violation.violation_id}.mp4"
             video_path = self._incidents_dir / video_filename
             
             success = self._video_buffers[source].save_video(video_path)

@@ -42,7 +42,7 @@ class VideoBuffer:
         self,
         output_path: Path,
         fps: Optional[float] = None,
-        codec: str = 'mp4v'
+        codec: str = 'X264'
     ) -> bool:
         """
         Save buffered frames to video file
@@ -50,7 +50,7 @@ class VideoBuffer:
         Args:
             output_path: Path where to save the video
             fps: Frames per second for output video (defaults to buffer fps)
-            codec: Video codec fourcc code
+            codec: Video codec fourcc code (default: 'X264' = H.264)
             
         Returns:
             True if video was saved successfully
@@ -65,17 +65,40 @@ class VideoBuffer:
         # Get frame dimensions from first frame
         height, width = self.frames[0].shape[:2]
         
-        # Create video writer
-        fourcc = cv2.VideoWriter_fourcc(*codec)
-        writer = cv2.VideoWriter(
-            str(output_path),
-            fourcc,
-            fps,
-            (width, height)
-        )
+        # Try multiple codecs in order of preference
+        codecs_to_try = [
+            ('X264', 'H.264'),      # Best quality and compatibility
+            ('avc1', 'H.264 alt'),  # Alternative H.264
+            ('mp4v', 'MPEG-4'),     # Fallback
+            ('XVID', 'Xvid'),       # Another fallback
+        ]
         
-        if not writer.isOpened():
-            logger.error(f"Failed to open video writer for {output_path}")
+        writer = None
+        used_codec = None
+        
+        for codec_fourcc, codec_name in codecs_to_try:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*codec_fourcc)
+                test_writer = cv2.VideoWriter(
+                    str(output_path),
+                    fourcc,
+                    fps,
+                    (width, height)
+                )
+                
+                if test_writer.isOpened():
+                    writer = test_writer
+                    used_codec = codec_name
+                    logger.debug(f"Using codec: {codec_name} ({codec_fourcc})")
+                    break
+                else:
+                    test_writer.release()
+            except Exception as e:
+                logger.debug(f"Codec {codec_fourcc} not available: {e}")
+                continue
+        
+        if writer is None or not writer.isOpened():
+            logger.error(f"Failed to open video writer for {output_path} with any codec")
             return False
         
         try:
@@ -84,7 +107,7 @@ class VideoBuffer:
                 writer.write(frame)
             
             duration = len(self.frames) / fps
-            logger.info(f"Saved {len(self.frames)} frames ({duration:.1f}s) to {output_path}")
+            logger.info(f"Saved {len(self.frames)} frames ({duration:.1f}s) to {output_path} using {used_codec}")
             return True
             
         except Exception as e:
